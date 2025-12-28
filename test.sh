@@ -1,0 +1,1 @@
+python yolo11.py --model_path model/pest.onnx --img_save

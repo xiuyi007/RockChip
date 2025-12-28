@@ -1,0 +1,1 @@
+python convert.py model/pest.onnx rv1106 i8 
