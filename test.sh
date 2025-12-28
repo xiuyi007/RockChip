@@ -1,1 +1,1 @@
-python yolo11.py --model_path model/pest.onnx --img_save
+python yolo11.py --model_path model/pest.rknn --target rv1106 --img_save

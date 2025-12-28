@@ -1,1 +1,7 @@
 dataset/calibration_data
+.rknn-toolkit2
+rknn_model_zoo
+result
+out.png
+pest.rknn
+model/
