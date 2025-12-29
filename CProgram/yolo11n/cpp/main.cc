@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <sys/time.h>
 #include "yolo11.h"
 #include "image_utils.h"
 #include "file_utils.h"
@@ -80,13 +80,52 @@ int main(int argc, char **argv)
 
     object_detect_result_list od_results;
 
-    ret = inference_yolo11_model(&rknn_app_ctx, &src_image, &od_results);
-    if (ret != 0)
     {
-        printf("init_yolo11_model fail! ret=%d\n", ret);
-        goto out;
-    }
+        // 性能测试开始
+        int loop_count = 200; 
+        
+        printf("\n--> Start Loop Test for %d times...\n", loop_count);
 
+        struct timeval start_time, end_time;
+        gettimeofday(&start_time, NULL); // 记录开始时间
+
+        for (int i = 0; i < loop_count; i++)
+        {
+            // 核心推理函数 (包含: 设置输入 -> NPU推理 -> 后处理解码)
+            // 注意：因为输入图像数据都在 DMA 内存里，不用重复 memcpy，直接复用即可
+            ret = inference_yolo11_model(&rknn_app_ctx, &src_image, &od_results);
+            
+            if (ret != 0)
+            {
+                printf("inference failed at loop %d! ret=%d\n", i, ret);
+                goto out;
+            }
+
+            // 打印进度 (每 10 次打印一次，避免刷屏影响性能)
+            if ((i + 1) % 10 == 0) {
+                printf("Running... %d/%d\n", i + 1, loop_count);
+            }
+        }
+
+        gettimeofday(&end_time, NULL); // 记录结束时间
+
+        // 计算总耗时 (毫秒)
+        double total_time_ms = (end_time.tv_sec - start_time.tv_sec) * 1000.0 +
+                            (end_time.tv_usec - start_time.tv_usec) / 1000.0;
+        
+        // 计算平均耗时和 FPS
+        double avg_time_ms = total_time_ms / loop_count;
+        double fps = 1000.0 / avg_time_ms;
+
+        printf("\n================ Performance Report ================\n");
+        printf(" Model: %s\n", model_path);
+        printf(" Loops: %d\n", loop_count);
+        printf(" Total Time: %.2f ms\n", total_time_ms);
+        printf(" Avg Latency: %.2f ms (Including Pre/Post process)\n", avg_time_ms);
+        printf(" FPS: %.2f\n", fps);
+        printf("====================================================\n\n");
+
+    }
     // 画框和概率
     char text[256];
     for (int i = 0; i < od_results.count; i++)
