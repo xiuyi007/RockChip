@@ -1,14 +1,23 @@
 rm -rf build
 
+# 生成yuv转换jpg程序
+./build-linux.sh -t rv1106 -a armhf -d camera 
+
 ./build-linux.sh -t rv1106 -a armhf -d yolo11n
 
-adb shell rm -rf /togethf/rknn_yolo11n_demo /board_run.sh
+adb shell rm -rf /togethf/rknn_yolo11n_demo
+adb shell rm /togethf/nv12_tool
 
 adb push ./install/rv1106_linux_armhf/rknn_yolo11n_demo /togethf
-adb push ./board_run.sh /
+adb push ./install/rv1106_linux_armhf/rknn_camera_demo/nv12_tool /togethf
+adb push ./run.sh /togethf
 
-adb shell
+# 进入板子
+# adb shell
 
 # ./board_run.sh
 
-# adb pull /togethf/rknn_yolo11n_demo/out.png .
+# 取回输出
+# adb pull
+
+

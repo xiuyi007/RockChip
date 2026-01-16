@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
     {
         // 性能测试开始
-        int loop_count = 200; 
+        int loop_count = 1; 
         
         printf("\n--> Start Loop Test for %d times...\n", loop_count);
 
